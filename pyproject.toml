@@ -1,0 +1,31 @@
+[project]
+name = "wordpress-post-mcp"
+version = "0.1.0"
+description = "WordPress に記事を投稿・管理するための MCP サーバー"
+requires-python = ">=3.13"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "httpx>=0.28.0",
+    "markdown-it-py>=3.0.0",
+]
+
+[project.scripts]
+wordpress-post-mcp = "wordpress_post_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wordpress_post_mcp"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.25.0",
+    "respx>=0.22.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
