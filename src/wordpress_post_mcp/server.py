@@ -2,7 +2,6 @@ from typing import Annotated, Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
-from mcp.types import INTERNAL_ERROR
 
 from wordpress_post_mcp.config import load_config
 from wordpress_post_mcp.errors import WordPressMCPError
@@ -107,6 +106,7 @@ def main() -> None:
         load_config()
     except WordPressMCPError as e:
         import sys
+
         print(f"設定エラー: {e}", file=sys.stderr)
         sys.exit(1)
     mcp.run()

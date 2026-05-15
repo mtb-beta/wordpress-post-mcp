@@ -22,7 +22,9 @@ class WpClient:
                 detail = response.json().get("message", response.text)
             except Exception:
                 detail = response.text
-            raise WordPressMCPError(f"WordPress API エラー {response.status_code}: {detail}")
+            raise WordPressMCPError(
+                f"WordPress API エラー {response.status_code}: {detail}"
+            )
 
     async def create_post(
         self,
@@ -101,7 +103,9 @@ class WpClient:
         params = {"_embed": "wp:term"}
         try:
             async with self._http() as http:
-                response = await http.get(f"{self._base}/posts/{post_id}", params=params)
+                response = await http.get(
+                    f"{self._base}/posts/{post_id}", params=params
+                )
         except httpx.HTTPError as e:
             raise WordPressMCPError(f"ネットワークエラー: {e}") from e
 
@@ -112,7 +116,9 @@ class WpClient:
         """カテゴリ一覧を取得する。"""
         try:
             async with self._http() as http:
-                response = await http.get(f"{self._base}/categories", params={"per_page": 100})
+                response = await http.get(
+                    f"{self._base}/categories", params={"per_page": 100}
+                )
         except httpx.HTTPError as e:
             raise WordPressMCPError(f"ネットワークエラー: {e}") from e
 
@@ -126,7 +132,9 @@ class WpClient:
         """タグ一覧を取得する。"""
         try:
             async with self._http() as http:
-                response = await http.get(f"{self._base}/tags", params={"per_page": 100})
+                response = await http.get(
+                    f"{self._base}/tags", params={"per_page": 100}
+                )
         except httpx.HTTPError as e:
             raise WordPressMCPError(f"ネットワークエラー: {e}") from e
 
@@ -136,7 +144,9 @@ class WpClient:
             for t in response.json()
         ]
 
-    def _extract_terms(self, post: dict[str, Any], taxonomy: str) -> list[dict[str, Any]]:
+    def _extract_terms(
+        self, post: dict[str, Any], taxonomy: str
+    ) -> list[dict[str, Any]]:
         """_embedded から指定 taxonomy のタームを抽出する。"""
         embedded = post.get("_embedded", {})
         term_groups = embedded.get("wp:term", [])

@@ -38,9 +38,14 @@ async def test_create_draft_converts_markdown_to_html(mock_wp_client, mock_confi
     assert "<h1>" in called_html
 
 
-async def test_create_draft_sends_empty_excerpt_when_omitted(mock_wp_client, mock_config):
+async def test_create_draft_sends_empty_excerpt_when_omitted(
+    mock_wp_client, mock_config
+):
     mock_wp_client.create_post.return_value = {
-        "id": 2, "title": {"rendered": "T"}, "status": "draft", "link": "https://example.com/?p=2"
+        "id": 2,
+        "title": {"rendered": "T"},
+        "status": "draft",
+        "link": "https://example.com/?p=2",
     }
 
     await call_tool("create_draft", title="T", content="body")
@@ -51,10 +56,15 @@ async def test_create_draft_sends_empty_excerpt_when_omitted(mock_wp_client, moc
 
 async def test_create_draft_sends_category_and_tag_ids(mock_wp_client, mock_config):
     mock_wp_client.create_post.return_value = {
-        "id": 3, "title": {"rendered": "T"}, "status": "draft", "link": "https://example.com/?p=3"
+        "id": 3,
+        "title": {"rendered": "T"},
+        "status": "draft",
+        "link": "https://example.com/?p=3",
     }
 
-    await call_tool("create_draft", title="T", content="body", category_ids=[1, 2], tag_ids=[5])
+    await call_tool(
+        "create_draft", title="T", content="body", category_ids=[1, 2], tag_ids=[5]
+    )
 
     call_kwargs = mock_wp_client.create_post.call_args.kwargs
     assert call_kwargs["category_ids"] == [1, 2]

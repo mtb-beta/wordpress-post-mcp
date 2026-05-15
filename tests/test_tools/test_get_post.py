@@ -1,7 +1,6 @@
 import pytest
 
 from wordpress_post_mcp.server import mcp
-from wordpress_post_mcp.errors import WordPressMCPError
 
 
 @pytest.fixture(autouse=True)

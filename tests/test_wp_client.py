@@ -18,12 +18,18 @@ def client():
 
 # --- create_post ---
 
+
 @respx.mock
 async def test_create_post_sends_correct_request(client):
     route = respx.post(f"{API_BASE}/posts").mock(
         return_value=httpx.Response(
             201,
-            json={"id": 1, "title": {"rendered": "タイトル"}, "status": "draft", "link": "https://example.com/?p=1"},
+            json={
+                "id": 1,
+                "title": {"rendered": "タイトル"},
+                "status": "draft",
+                "link": "https://example.com/?p=1",
+            },
         )
     )
 
@@ -39,6 +45,7 @@ async def test_create_post_sends_correct_request(client):
     assert route.called
     request = route.calls[0].request
     import json
+
     body = json.loads(request.content)
     assert body["title"] == "タイトル"
     assert body["content"] == "<p>本文</p>"
@@ -50,13 +57,23 @@ async def test_create_post_sends_correct_request(client):
 
 @respx.mock
 async def test_create_post_raises_on_auth_error(client):
-    respx.post(f"{API_BASE}/posts").mock(return_value=httpx.Response(401, json={"code": "rest_forbidden"}))
+    respx.post(f"{API_BASE}/posts").mock(
+        return_value=httpx.Response(401, json={"code": "rest_forbidden"})
+    )
 
     with pytest.raises(WordPressMCPError):
-        await client.create_post(title="t", content_html="c", excerpt="", slug="", category_ids=[], tag_ids=[])
+        await client.create_post(
+            title="t",
+            content_html="c",
+            excerpt="",
+            slug="",
+            category_ids=[],
+            tag_ids=[],
+        )
 
 
 # --- list_posts ---
+
 
 @respx.mock
 async def test_list_posts_returns_posts_and_pagination(client):
@@ -100,10 +117,21 @@ async def test_list_posts_passes_query_params(client):
         )
     )
 
-    await client.list_posts(query="検索ワード", status="publish", category_id=1, tag_id=2, order="asc", per_page=5, page=2)
+    await client.list_posts(
+        query="検索ワード",
+        status="publish",
+        category_id=1,
+        tag_id=2,
+        order="asc",
+        per_page=5,
+        page=2,
+    )
 
     request = route.calls[0].request
-    assert b"search=%E6%A4%9C%E7%B4%A2%E3%83%AF%E3%83%BC%E3%83%89" in request.url.raw_path or "search" in str(request.url)
+    assert (
+        b"search=%E6%A4%9C%E7%B4%A2%E3%83%AF%E3%83%BC%E3%83%89" in request.url.raw_path
+        or "search" in str(request.url)
+    )
     assert "status=publish" in str(request.url)
     assert "categories=1" in str(request.url)
     assert "tags=2" in str(request.url)
@@ -113,6 +141,7 @@ async def test_list_posts_passes_query_params(client):
 
 
 # --- get_post ---
+
 
 @respx.mock
 async def test_get_post_returns_post(client):
@@ -144,13 +173,16 @@ async def test_get_post_returns_post(client):
 
 @respx.mock
 async def test_get_post_raises_on_not_found(client):
-    respx.get(f"{API_BASE}/posts/999").mock(return_value=httpx.Response(404, json={"code": "rest_post_invalid_id"}))
+    respx.get(f"{API_BASE}/posts/999").mock(
+        return_value=httpx.Response(404, json={"code": "rest_post_invalid_id"})
+    )
 
     with pytest.raises(WordPressMCPError):
         await client.get_post(999)
 
 
 # --- list_categories ---
+
 
 @respx.mock
 async def test_list_categories_returns_list(client):
@@ -172,6 +204,7 @@ async def test_list_categories_returns_list(client):
 
 # --- list_tags ---
 
+
 @respx.mock
 async def test_list_tags_returns_list(client):
     respx.get(f"{API_BASE}/tags").mock(
@@ -192,9 +225,19 @@ async def test_list_tags_returns_list(client):
 
 # --- ネットワークエラー ---
 
+
 @respx.mock
 async def test_create_post_raises_on_network_error(client):
-    respx.post(f"{API_BASE}/posts").mock(side_effect=httpx.ConnectError("connection refused"))
+    respx.post(f"{API_BASE}/posts").mock(
+        side_effect=httpx.ConnectError("connection refused")
+    )
 
     with pytest.raises(WordPressMCPError):
-        await client.create_post(title="t", content_html="c", excerpt="", slug="", category_ids=[], tag_ids=[])
+        await client.create_post(
+            title="t",
+            content_html="c",
+            excerpt="",
+            slug="",
+            category_ids=[],
+            tag_ids=[],
+        )
