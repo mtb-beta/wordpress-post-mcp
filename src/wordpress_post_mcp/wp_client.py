@@ -3,7 +3,7 @@ from typing import Any
 import httpx
 
 from wordpress_post_mcp.config import Config
-from wordpress_post_mcp.errors import WordPressMCPError
+from wordpress_post_mcp.errors import NetworkError, WordPressAPIError
 
 
 class WpClient:
@@ -22,8 +22,9 @@ class WpClient:
                 detail = response.json().get("message", response.text)
             except Exception:
                 detail = response.text
-            raise WordPressMCPError(
-                f"WordPress API エラー {response.status_code}: {detail}"
+            raise WordPressAPIError(
+                f"WordPress API エラー {response.status_code}: {detail}",
+                status_code=response.status_code,
             )
 
     async def create_post(
@@ -52,7 +53,7 @@ class WpClient:
             async with self._http() as http:
                 response = await http.post(f"{self._base}/posts", json=payload)
         except httpx.HTTPError as e:
-            raise WordPressMCPError(f"ネットワークエラー: {e}") from e
+            raise NetworkError(f"ネットワークエラー: {e}") from e
 
         self._raise_for_status(response)
         return response.json()
@@ -86,7 +87,7 @@ class WpClient:
             async with self._http() as http:
                 response = await http.get(f"{self._base}/posts", params=params)
         except httpx.HTTPError as e:
-            raise WordPressMCPError(f"ネットワークエラー: {e}") from e
+            raise NetworkError(f"ネットワークエラー: {e}") from e
 
         self._raise_for_status(response)
         posts = [self._format_post_summary(p) for p in response.json()]
@@ -107,7 +108,7 @@ class WpClient:
                     f"{self._base}/posts/{post_id}", params=params
                 )
         except httpx.HTTPError as e:
-            raise WordPressMCPError(f"ネットワークエラー: {e}") from e
+            raise NetworkError(f"ネットワークエラー: {e}") from e
 
         self._raise_for_status(response)
         return self._format_post_detail(response.json())
@@ -120,7 +121,7 @@ class WpClient:
                     f"{self._base}/categories", params={"per_page": 100}
                 )
         except httpx.HTTPError as e:
-            raise WordPressMCPError(f"ネットワークエラー: {e}") from e
+            raise NetworkError(f"ネットワークエラー: {e}") from e
 
         self._raise_for_status(response)
         return [
@@ -136,7 +137,7 @@ class WpClient:
                     f"{self._base}/tags", params={"per_page": 100}
                 )
         except httpx.HTTPError as e:
-            raise WordPressMCPError(f"ネットワークエラー: {e}") from e
+            raise NetworkError(f"ネットワークエラー: {e}") from e
 
         self._raise_for_status(response)
         return [

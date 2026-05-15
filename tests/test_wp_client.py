@@ -3,7 +3,7 @@ import httpx
 import respx
 
 from wordpress_post_mcp.config import Config
-from wordpress_post_mcp.errors import WordPressMCPError
+from wordpress_post_mcp.errors import NetworkError, WordPressAPIError
 from wordpress_post_mcp.wp_client import WpClient
 
 BASE_URL = "https://example.com"
@@ -61,7 +61,7 @@ async def test_create_post_raises_on_auth_error(client):
         return_value=httpx.Response(401, json={"code": "rest_forbidden"})
     )
 
-    with pytest.raises(WordPressMCPError):
+    with pytest.raises(WordPressAPIError):
         await client.create_post(
             title="t",
             content_html="c",
@@ -177,7 +177,7 @@ async def test_get_post_raises_on_not_found(client):
         return_value=httpx.Response(404, json={"code": "rest_post_invalid_id"})
     )
 
-    with pytest.raises(WordPressMCPError):
+    with pytest.raises(WordPressAPIError):
         await client.get_post(999)
 
 
@@ -232,7 +232,7 @@ async def test_create_post_raises_on_network_error(client):
         side_effect=httpx.ConnectError("connection refused")
     )
 
-    with pytest.raises(WordPressMCPError):
+    with pytest.raises(NetworkError):
         await client.create_post(
             title="t",
             content_html="c",
