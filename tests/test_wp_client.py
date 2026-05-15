@@ -2,18 +2,16 @@ import pytest
 import httpx
 import respx
 
-from wordpress_post_mcp.config import Config
 from wordpress_post_mcp.errors import NetworkError, WordPressAPIError
 from wordpress_post_mcp.wp_client import WpClient
 
 BASE_URL = "https://example.com"
-CONFIG = Config(url=BASE_URL, username="user", app_password="pass")
 API_BASE = f"{BASE_URL}/wp-json/wp/v2"
 
 
 @pytest.fixture
 def client():
-    return WpClient(CONFIG)
+    return WpClient(url=BASE_URL, username="user", app_password="pass")
 
 
 # --- create_post ---

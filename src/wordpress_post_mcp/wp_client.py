@@ -2,16 +2,15 @@ from typing import Any
 
 import httpx
 
-from wordpress_post_mcp.config import Config
 from wordpress_post_mcp.errors import NetworkError, WordPressAPIError
 
 
 class WpClient:
     """WordPress REST API クライアント。"""
 
-    def __init__(self, config: Config) -> None:
-        self._base = f"{config.url}/wp-json/wp/v2"
-        self._auth = (config.username, config.app_password)
+    def __init__(self, url: str, username: str, app_password: str) -> None:
+        self._base = f"{url}/wp-json/wp/v2"
+        self._auth = (username, app_password)
 
     def _http(self) -> httpx.AsyncClient:
         return httpx.AsyncClient(auth=self._auth)

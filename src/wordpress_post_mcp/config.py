@@ -6,7 +6,7 @@ from wordpress_post_mcp.errors import ConfigurationError
 
 
 @dataclass
-class Config:
+class _Config:
     """サーバー設定。"""
 
     url: str
@@ -14,7 +14,7 @@ class Config:
     app_password: str
 
 
-def load_config() -> Config:
+def load_config() -> _Config:
     """環境変数（または .env）から設定を読み込む。未設定の変数があれば ConfigurationError を投げる。"""
     try:
         url = config("WP_URL").rstrip("/")
@@ -23,4 +23,7 @@ def load_config() -> Config:
     except UndefinedValueError as e:
         raise ConfigurationError(str(e)) from e
 
-    return Config(url=url, username=username, app_password=app_password)
+    return _Config(url=url, username=username, app_password=app_password)
+
+
+Config = load_config()

@@ -1,13 +1,4 @@
-import pytest
-
 from wordpress_post_mcp.server import mcp
-
-
-@pytest.fixture(autouse=True)
-def setup_env(monkeypatch):
-    monkeypatch.setenv("WP_URL", "https://example.com")
-    monkeypatch.setenv("WP_USERNAME", "user")
-    monkeypatch.setenv("WP_APP_PASSWORD", "pass")
 
 
 async def call_tool(name: str, **kwargs):
@@ -34,7 +25,7 @@ SAMPLE_RESULT = {
 }
 
 
-async def test_list_posts_returns_result(mock_wp_client, mock_config):
+async def test_list_posts_returns_result(mock_wp_client):
     mock_wp_client.list_posts.return_value = SAMPLE_RESULT
 
     result = await call_tool("list_posts")
@@ -43,7 +34,7 @@ async def test_list_posts_returns_result(mock_wp_client, mock_config):
     assert len(result["posts"]) == 1
 
 
-async def test_list_posts_passes_query(mock_wp_client, mock_config):
+async def test_list_posts_passes_query(mock_wp_client):
     mock_wp_client.list_posts.return_value = {**SAMPLE_RESULT, "posts": []}
 
     await call_tool("list_posts", query="検索ワード")
@@ -52,7 +43,7 @@ async def test_list_posts_passes_query(mock_wp_client, mock_config):
     assert call_kwargs["query"] == "検索ワード"
 
 
-async def test_list_posts_default_status_is_any(mock_wp_client, mock_config):
+async def test_list_posts_default_status_is_any(mock_wp_client):
     mock_wp_client.list_posts.return_value = {**SAMPLE_RESULT, "posts": []}
 
     await call_tool("list_posts")
@@ -61,7 +52,7 @@ async def test_list_posts_default_status_is_any(mock_wp_client, mock_config):
     assert call_kwargs["status"] == "any"
 
 
-async def test_list_posts_default_order_is_desc(mock_wp_client, mock_config):
+async def test_list_posts_default_order_is_desc(mock_wp_client):
     mock_wp_client.list_posts.return_value = {**SAMPLE_RESULT, "posts": []}
 
     await call_tool("list_posts")
@@ -70,7 +61,7 @@ async def test_list_posts_default_order_is_desc(mock_wp_client, mock_config):
     assert call_kwargs["order"] == "desc"
 
 
-async def test_list_posts_passes_category_and_tag_filter(mock_wp_client, mock_config):
+async def test_list_posts_passes_category_and_tag_filter(mock_wp_client):
     mock_wp_client.list_posts.return_value = {**SAMPLE_RESULT, "posts": []}
 
     await call_tool("list_posts", category_id=1, tag_id=5)
@@ -80,7 +71,7 @@ async def test_list_posts_passes_category_and_tag_filter(mock_wp_client, mock_co
     assert call_kwargs["tag_id"] == 5
 
 
-async def test_list_posts_result_has_no_content_field(mock_wp_client, mock_config):
+async def test_list_posts_result_has_no_content_field(mock_wp_client):
     mock_wp_client.list_posts.return_value = SAMPLE_RESULT
 
     result = await call_tool("list_posts")

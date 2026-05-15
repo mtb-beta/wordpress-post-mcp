@@ -4,7 +4,7 @@ from markdown_it import MarkdownIt
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 
-from wordpress_post_mcp.config import load_config
+from wordpress_post_mcp.config import Config
 from wordpress_post_mcp.errors import WordPressMCPError
 from wordpress_post_mcp.wp_client import WpClient
 
@@ -15,9 +15,7 @@ mcp = FastMCP("wordpress-post-mcp")
 
 
 def _client() -> WpClient:
-    # モジュールインポート時ではなくツール呼び出し時に設定を読むことで、
-    # テストが monkeypatch.setenv で環境変数を差し替えられるようにしている。
-    return WpClient(load_config())
+    return WpClient(url=Config.url, username=Config.username, app_password=Config.app_password)
 
 
 @mcp.tool()
@@ -111,15 +109,7 @@ async def list_tags() -> list[dict[str, Any]]:
 
 
 def main() -> None:
-    """サーバー起動エントリポイント。環境変数が未設定なら終了する。"""
-    try:
-        # ツール呼び出し前に設定不備を検出して早期終了するための起動時バリデーション。
-        load_config()
-    except WordPressMCPError as e:
-        import sys
-
-        print(f"設定エラー: {e}", file=sys.stderr)
-        sys.exit(1)
+    """サーバー起動エントリポイント。"""
     mcp.run()
 
 

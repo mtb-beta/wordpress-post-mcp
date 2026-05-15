@@ -1,15 +1,8 @@
 import pytest
 from fastmcp.exceptions import ToolError
 
-from wordpress_post_mcp.server import mcp
 from wordpress_post_mcp.errors import WordPressMCPError
-
-
-@pytest.fixture(autouse=True)
-def setup_env(monkeypatch):
-    monkeypatch.setenv("WP_URL", "https://example.com")
-    monkeypatch.setenv("WP_USERNAME", "user")
-    monkeypatch.setenv("WP_APP_PASSWORD", "pass")
+from wordpress_post_mcp.server import mcp
 
 
 async def call_tool(name: str, **kwargs):
@@ -18,7 +11,7 @@ async def call_tool(name: str, **kwargs):
     return await tool.fn(**kwargs)
 
 
-async def test_create_draft_converts_markdown_to_html(mock_wp_client, mock_config):
+async def test_create_draft_converts_markdown_to_html(mock_wp_client):
     mock_wp_client.create_post.return_value = {
         "id": 1,
         "title": {"rendered": "タイトル"},
@@ -38,9 +31,7 @@ async def test_create_draft_converts_markdown_to_html(mock_wp_client, mock_confi
     assert "<h1>" in called_html
 
 
-async def test_create_draft_sends_empty_excerpt_when_omitted(
-    mock_wp_client, mock_config
-):
+async def test_create_draft_sends_empty_excerpt_when_omitted(mock_wp_client):
     mock_wp_client.create_post.return_value = {
         "id": 2,
         "title": {"rendered": "T"},
@@ -54,7 +45,7 @@ async def test_create_draft_sends_empty_excerpt_when_omitted(
     assert call_kwargs["excerpt"] == ""
 
 
-async def test_create_draft_sends_category_and_tag_ids(mock_wp_client, mock_config):
+async def test_create_draft_sends_category_and_tag_ids(mock_wp_client):
     mock_wp_client.create_post.return_value = {
         "id": 3,
         "title": {"rendered": "T"},
@@ -71,7 +62,7 @@ async def test_create_draft_sends_category_and_tag_ids(mock_wp_client, mock_conf
     assert call_kwargs["tag_ids"] == [5]
 
 
-async def test_create_draft_returns_correct_format(mock_wp_client, mock_config):
+async def test_create_draft_returns_correct_format(mock_wp_client):
     mock_wp_client.create_post.return_value = {
         "id": 10,
         "title": {"rendered": "記事タイトル"},
@@ -89,7 +80,7 @@ async def test_create_draft_returns_correct_format(mock_wp_client, mock_config):
     }
 
 
-async def test_create_draft_raises_mcp_error_on_wp_error(mock_wp_client, mock_config):
+async def test_create_draft_raises_mcp_error_on_wp_error(mock_wp_client):
     mock_wp_client.create_post.side_effect = WordPressMCPError("認証エラー")
 
     with pytest.raises(ToolError):

@@ -1,13 +1,4 @@
-import pytest
-
 from wordpress_post_mcp.server import mcp
-
-
-@pytest.fixture(autouse=True)
-def setup_env(monkeypatch):
-    monkeypatch.setenv("WP_URL", "https://example.com")
-    monkeypatch.setenv("WP_USERNAME", "user")
-    monkeypatch.setenv("WP_APP_PASSWORD", "pass")
 
 
 async def call_tool(name: str, **kwargs):
@@ -27,7 +18,7 @@ SAMPLE_POST = {
 }
 
 
-async def test_get_post_returns_post_with_content(mock_wp_client, mock_config):
+async def test_get_post_returns_post_with_content(mock_wp_client):
     mock_wp_client.get_post.return_value = SAMPLE_POST
 
     result = await call_tool("get_post", post_id=42)
@@ -38,7 +29,7 @@ async def test_get_post_returns_post_with_content(mock_wp_client, mock_config):
     assert result["tags"] == [{"id": 5, "name": "Python"}]
 
 
-async def test_get_post_calls_client_with_correct_id(mock_wp_client, mock_config):
+async def test_get_post_calls_client_with_correct_id(mock_wp_client):
     mock_wp_client.get_post.return_value = SAMPLE_POST
 
     await call_tool("get_post", post_id=42)

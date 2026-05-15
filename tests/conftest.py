@@ -1,15 +1,14 @@
-import pytest
+import os
 from unittest.mock import AsyncMock, patch
 
-from wordpress_post_mcp.config import Config
+import pytest
 
-
-@pytest.fixture
-def mock_config(monkeypatch):
-    monkeypatch.setenv("WP_URL", "https://example.com")
-    monkeypatch.setenv("WP_USERNAME", "user")
-    monkeypatch.setenv("WP_APP_PASSWORD", "pass")
-    return Config(url="https://example.com", username="user", app_password="pass")
+# pytest のコレクション（モジュールインポート）前に env vars をセットする。
+# config.py はインポート時に Config = load_config() を実行するため、
+# この時点で env vars が存在している必要がある。
+os.environ.setdefault("WP_URL", "https://example.com")
+os.environ.setdefault("WP_USERNAME", "user")
+os.environ.setdefault("WP_APP_PASSWORD", "pass")
 
 
 @pytest.fixture
