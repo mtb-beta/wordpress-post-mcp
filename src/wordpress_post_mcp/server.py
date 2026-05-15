@@ -8,12 +8,15 @@ from wordpress_post_mcp.config import load_config
 from wordpress_post_mcp.errors import WordPressMCPError
 from wordpress_post_mcp.wp_client import WpClient
 
+# ツール呼び出しごとにインスタンスを生成しないようモジュールレベルで保持する。
 _md = MarkdownIt("commonmark")
 
 mcp = FastMCP("wordpress-post-mcp")
 
 
 def _client() -> WpClient:
+    # モジュールインポート時ではなくツール呼び出し時に設定を読むことで、
+    # テストが monkeypatch.setenv で環境変数を差し替えられるようにしている。
     return WpClient(load_config())
 
 
@@ -38,8 +41,12 @@ async def create_draft(
             tag_ids=tag_ids,
         )
     except WordPressMCPError as e:
+        # FastMCP は ToolError のみを MCP プロトコルのエラーとしてクライアントに返す。
+        # WordPressMCPError をそのまま raise すると未処理例外になるため変換している。
         raise ToolError(str(e)) from e
 
+    # WordPress REST API はテキストフィールドを {"rendered": "...", "raw": "..."} で返すため
+    # .rendered を取り出して返す。
     return {
         "id": post["id"],
         "title": post["title"]["rendered"],
@@ -51,6 +58,7 @@ async def create_draft(
 @mcp.tool()
 async def list_posts(
     query: Annotated[str, "検索キーワード"] = "",
+    # エージェントは下書きと公開済みの両方を参照する必要があるため "any" をデフォルトにしている。
     status: Annotated[str, "publish / draft / any"] = "any",
     category_id: Annotated[int | None, "カテゴリ ID で絞り込み"] = None,
     tag_id: Annotated[int | None, "タグ ID で絞り込み"] = None,
@@ -105,6 +113,7 @@ async def list_tags() -> list[dict[str, Any]]:
 def main() -> None:
     """サーバー起動エントリポイント。環境変数が未設定なら終了する。"""
     try:
+        # ツール呼び出し前に設定不備を検出して早期終了するための起動時バリデーション。
         load_config()
     except WordPressMCPError as e:
         import sys
