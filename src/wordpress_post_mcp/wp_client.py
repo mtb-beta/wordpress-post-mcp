@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -55,7 +55,7 @@ class WpClient:
             raise NetworkError(f"ネットワークエラー: {e}") from e
 
         self._raise_for_status(response)
-        return response.json()
+        return cast(dict[str, Any], response.json())
 
     async def list_posts(
         self,

@@ -7,6 +7,7 @@ dependencies = [
     "fastmcp>=2.0.0",
     "httpx>=0.28.0",
     "markdown-it-py>=3.0.0",
+    "mypy>=2.1.0",
     "python-decouple>=3.8",
 ]
 
@@ -22,11 +23,21 @@ packages = ["src/wordpress_post_mcp"]
 
 [dependency-groups]
 dev = [
+    "mypy>=2.1.0",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.25.0",
     "respx>=0.22.0",
     "ruff>=0.15.13",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+exclude = ["tests/"]
+
+[[tool.mypy.overrides]]
+module = "decouple"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
