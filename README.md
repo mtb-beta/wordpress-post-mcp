@@ -79,6 +79,22 @@ flowchart TD
 }
 ```
 
+## 開発
+
+### コード品質ツール
+
+| ツール | 用途 | 実行コマンド |
+|--------|------|-------------|
+| [ruff](https://docs.astral.sh/ruff/) | Linter / Formatter | `uv run ruff check src/` `uv run ruff format src/` |
+| [mypy](https://mypy.readthedocs.io/) | 静的型チェック | `uv run mypy src/` |
+| [vulture](https://github.com/jendrikseipp/vulture) | デッドコード検出 | `uv run vulture` |
+
+### テスト
+
+```bash
+uv run pytest
+```
+
 ## ステータス
 
 現在、開発中です。
