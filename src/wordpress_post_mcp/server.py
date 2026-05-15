@@ -1,12 +1,14 @@
 from typing import Annotated, Any
 
+from markdown_it import MarkdownIt
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 
 from wordpress_post_mcp.config import load_config
 from wordpress_post_mcp.errors import WordPressMCPError
-from wordpress_post_mcp.markdown import convert_markdown
 from wordpress_post_mcp.wp_client import WpClient
+
+_md = MarkdownIt("commonmark")
 
 mcp = FastMCP("wordpress-post-mcp")
 
@@ -25,7 +27,7 @@ async def create_draft(
     tag_ids: Annotated[list[int], "タグ ID のリスト"] = [],
 ) -> dict[str, Any]:
     """Markdown の本文を HTML に変換して WordPress に下書きを作成する。"""
-    content_html = convert_markdown(content)
+    content_html = _md.render(content) if content else ""
     try:
         post = await _client().create_post(
             title=title,
