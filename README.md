@@ -1,6 +1,7 @@
 # wordpress-post-mcp
 
 WordPress に記事を投稿・管理するための MCP サーバーです。
+現在、開発中で、まだWordPressとの疎通確認を行なっていません。
 
 ## これは何か
 
