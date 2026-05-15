@@ -13,7 +13,6 @@ os.environ.setdefault("WP_APP_PASSWORD", "pass")
 
 @pytest.fixture
 def mock_wp_client():
-    with patch("wordpress_post_mcp.server.WpClient") as mock_cls:
-        instance = AsyncMock()
-        mock_cls.return_value = instance
+    instance = AsyncMock()
+    with patch("wordpress_post_mcp.server._wp_client", instance):
         yield instance

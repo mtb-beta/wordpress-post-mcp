@@ -8,14 +8,10 @@ from wordpress_post_mcp.config import Config
 from wordpress_post_mcp.errors import WordPressMCPError
 from wordpress_post_mcp.wp_client import WpClient
 
-# ツール呼び出しごとにインスタンスを生成しないようモジュールレベルで保持する。
 _md = MarkdownIt("commonmark")
+_wp_client = WpClient(url=Config.url, username=Config.username, app_password=Config.app_password)
 
 mcp = FastMCP("wordpress-post-mcp")
-
-
-def _client() -> WpClient:
-    return WpClient(url=Config.url, username=Config.username, app_password=Config.app_password)
 
 
 @mcp.tool()
@@ -30,7 +26,7 @@ async def create_draft(
     """Markdown の本文を HTML に変換して WordPress に下書きを作成する。"""
     content_html = _md.render(content) if content else ""
     try:
-        post = await _client().create_post(
+        post = await _wp_client.create_post(
             title=title,
             content_html=content_html,
             excerpt=excerpt,
@@ -66,7 +62,7 @@ async def list_posts(
 ) -> dict[str, Any]:
     """記事一覧を取得する。本文は含まない。"""
     try:
-        return await _client().list_posts(
+        return await _wp_client.list_posts(
             query=query,
             status=status,
             category_id=category_id,
@@ -85,7 +81,7 @@ async def get_post(
 ) -> dict[str, Any]:
     """指定 ID の記事の本文・カテゴリ・タグ・メタ情報を取得する。"""
     try:
-        return await _client().get_post(post_id)
+        return await _wp_client.get_post(post_id)
     except WordPressMCPError as e:
         raise ToolError(str(e)) from e
 
@@ -94,7 +90,7 @@ async def get_post(
 async def list_categories() -> list[dict[str, Any]]:
     """WordPress に登録されているカテゴリの一覧を取得する。"""
     try:
-        return await _client().list_categories()
+        return await _wp_client.list_categories()
     except WordPressMCPError as e:
         raise ToolError(str(e)) from e
 
@@ -103,7 +99,7 @@ async def list_categories() -> list[dict[str, Any]]:
 async def list_tags() -> list[dict[str, Any]]:
     """WordPress に登録されているタグの一覧を取得する。"""
     try:
-        return await _client().list_tags()
+        return await _wp_client.list_tags()
     except WordPressMCPError as e:
         raise ToolError(str(e)) from e
 
