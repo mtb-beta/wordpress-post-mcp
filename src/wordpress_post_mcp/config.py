@@ -1,5 +1,6 @@
-import os
 from dataclasses import dataclass
+
+from decouple import UndefinedValueError, config
 
 from wordpress_post_mcp.errors import WordPressMCPError
 
@@ -14,18 +15,12 @@ class Config:
 
 
 def load_config() -> Config:
-    """環境変数から設定を読み込む。未設定の変数があれば WordPressMCPError を投げる。"""
-    missing = [
-        v for v in ("WP_URL", "WP_USERNAME", "WP_APP_PASSWORD") if not os.getenv(v)
-    ]
-    if missing:
-        raise WordPressMCPError(
-            f"必須の環境変数が設定されていません: {', '.join(missing)}"
-        )
+    """環境変数（または .env）から設定を読み込む。未設定の変数があれば WordPressMCPError を投げる。"""
+    try:
+        url = config("WP_URL").rstrip("/")
+        username = config("WP_USERNAME")
+        app_password = config("WP_APP_PASSWORD")
+    except UndefinedValueError as e:
+        raise WordPressMCPError(str(e)) from e
 
-    url = os.environ["WP_URL"].rstrip("/")
-    return Config(
-        url=url,
-        username=os.environ["WP_USERNAME"],
-        app_password=os.environ["WP_APP_PASSWORD"],
-    )
+    return Config(url=url, username=username, app_password=app_password)
